@@ -22,290 +22,124 @@ SET time_zone = "+00:00";
 -- Banco de dados: `id10697665_escola`
 --
 
--- --------------------------------------------------------
+-- -----------------------------------------------------
+-- Table `niveis`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `niveis` (
+  `id_nivel` INT NOT NULL AUTO_INCREMENT,
+  `nome_nivel` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`id_nivel`))
+ENGINE = InnoDB;
 
---
--- Estrutura da tabela `aluno`
---
 
-CREATE TABLE `aluno` (
-  `id_aluno` int(10) UNSIGNED NOT NULL,
-  `usuarios_id_usuario` int(10) UNSIGNED NOT NULL,
-  `nome_aluno` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `turma_id_turma` int(10) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- -----------------------------------------------------
+-- Table `usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `id_usuario` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(100) NOT NULL,
+  `nome` VARCHAR(80) NOT NULL,
+  `usuario` VARCHAR(45) NOT NULL,
+  `senha` VARCHAR(255) NULL,
+  `niveis_id_nivel` INT NOT NULL,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  INDEX `fk_Usuários_niveis_idx` (`niveis_id_nivel` ASC) VISIBLE,
+  CONSTRAINT `fk_Usuários_niveis`
+    FOREIGN KEY (`niveis_id_nivel`)
+    REFERENCES `mydb`.`niveis` (`id_nivel`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
---
--- Extraindo dados da tabela `aluno`
---
 
-INSERT INTO `aluno` (`id_aluno`, `usuarios_id_usuario`, `nome_aluno`, `turma_id_turma`) VALUES
-(13, 4, 'Paulo Henrique', 10),
-(14, 8, 'Sofia', 10),
-(15, 4, 'Erick', 12);
+-- -----------------------------------------------------
+-- Table `recuperação`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `recuperação` (
+  `id_recuperação` INT NOT NULL AUTO_INCREMENT,
+  `confirmação` VARCHAR(255) NOT NULL,
+  `usuarios_email` VARCHAR(100) NOT NULL,
+  INDEX `fk_recuperação_Usuários1_idx` (`usuarios_email` ASC) VISIBLE,
+  PRIMARY KEY (`id_recuperação`),
+  CONSTRAINT `fk_recuperação_Usuários1`
+    FOREIGN KEY (`usuarios_email`)
+    REFERENCES `mydb`.`usuarios` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
--- --------------------------------------------------------
 
---
--- Estrutura da tabela `arquivos`
---
+-- -----------------------------------------------------
+-- Table `turma`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `turma` (
+  `id_turma` INT NOT NULL AUTO_INCREMENT,
+  `nome_turma` VARCHAR(20) NULL,
+  PRIMARY KEY (`id_turma`))
+ENGINE = InnoDB;
 
-CREATE TABLE `arquivos` (
-  `id_arquivo` int(10) UNSIGNED NOT NULL,
-  `aluno_id_aluno` int(10) UNSIGNED NOT NULL,
-  `arquivo` varchar(400) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `data_arquivo` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
+-- -----------------------------------------------------
+-- Table `alunos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `alunos` (
+  `id_aluno` INT NOT NULL AUTO_INCREMENT,
+  `nome_aluno` VARCHAR(80) NULL,
+  `usuarios_id_usuario` INT NOT NULL,
+  `turma_id_turma` INT NOT NULL,
+  PRIMARY KEY (`id_aluno`),
+  INDEX `fk_alunos_usuarios1_idx` (`usuarios_id_usuario` ASC) VISIBLE,
+  INDEX `fk_alunos_turma1_idx` (`turma_id_turma` ASC) VISIBLE,
+  CONSTRAINT `fk_alunos_usuarios1`
+    FOREIGN KEY (`usuarios_id_usuario`)
+    REFERENCES `mydb`.`usuarios` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_alunos_turma1`
+    FOREIGN KEY (`turma_id_turma`)
+    REFERENCES `mydb`.`turma` (`id_turma`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
---
--- Estrutura da tabela `atividade`
---
 
-CREATE TABLE `atividade` (
-  `id_atividade` int(10) UNSIGNED NOT NULL,
-  `turma_id_turma` int(10) UNSIGNED NOT NULL,
-  `disciplina_id_disciplina` int(10) UNSIGNED NOT NULL,
-  `texto` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `data_atividade` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- -----------------------------------------------------
+-- Table `disciplina`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `disciplina` (
+  `id_disciplina` INT NOT NULL AUTO_INCREMENT,
+  `nome_disciplina` VARCHAR(20) NULL,
+  PRIMARY KEY (`id_disciplina`))
+ENGINE = InnoDB;
 
---
--- Extraindo dados da tabela `atividade`
---
 
-INSERT INTO `atividade` (`id_atividade`, `turma_id_turma`, `disciplina_id_disciplina`, `texto`, `data_atividade`) VALUES
-(15, 8, 5, ' Livro 1 página 23.', '2020-05-31'),
-(16, 10, 5, ' Livro 1 página 25.', '2020-05-30');
+-- -----------------------------------------------------
+-- Table `atividade`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `atividade` (
+  `id_atividade` INT NOT NULL AUTO_INCREMENT,
+  `texto` TEXT(300) NULL,
+  `data_atividade` DATE NULL,
+  `turma_id_turma` INT NOT NULL,
+  `disciplina_id_disciplina` INT NOT NULL,
+  PRIMARY KEY (`id_atividade`),
+  INDEX `fk_atividade_turma1_idx` (`turma_id_turma` ASC) VISIBLE,
+  INDEX `fk_atividade_disciplina1_idx` (`disciplina_id_disciplina` ASC) VISIBLE,
+  CONSTRAINT `fk_atividade_turma1`
+    FOREIGN KEY (`turma_id_turma`)
+    REFERENCES `mydb`.`turma` (`id_turma`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_atividade_disciplina1`
+    FOREIGN KEY (`disciplina_id_disciplina`)
+    REFERENCES `mydb`.`disciplina` (`id_disciplina`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
--- --------------------------------------------------------
 
---
--- Estrutura da tabela `disciplina`
---
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
-CREATE TABLE `disciplina` (
-  `id_disciplina` int(10) UNSIGNED NOT NULL,
-  `nome_disciplina` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Extraindo dados da tabela `disciplina`
---
-
-INSERT INTO `disciplina` (`id_disciplina`, `nome_disciplina`) VALUES
-(5, 'Matemática'),
-(7, 'Português');
-
--- --------------------------------------------------------
-
---
--- Estrutura da tabela `niveis`
---
-
-CREATE TABLE `niveis` (
-  `id_nivel` int(2) UNSIGNED NOT NULL,
-  `nome_nivel` varchar(55) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Extraindo dados da tabela `niveis`
---
-
-INSERT INTO `niveis` (`id_nivel`, `nome_nivel`) VALUES
-(1, 'secretaria'),
-(2, 'professor'),
-(3, 'pais');
-
--- --------------------------------------------------------
-
---
--- Estrutura da tabela `recuperacao`
---
-
-CREATE TABLE `recuperacao` (
-  `utilizador` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `confirmacao` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  `data_recuperacao` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estrutura da tabela `turma`
---
-
-CREATE TABLE `turma` (
-  `id_turma` int(11) UNSIGNED NOT NULL,
-  `nome_turma` text COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Extraindo dados da tabela `turma`
---
-
-INSERT INTO `turma` (`id_turma`, `nome_turma`) VALUES
-(8, 'Maternal I'),
-(10, 'Maternal II'),
-(12, 'infantil II'),
-(13, 'infantil III'),
-(15, 'Maternal III');
-
--- --------------------------------------------------------
-
---
--- Estrutura da tabela `usuarios`
---
-
-CREATE TABLE `usuarios` (
-  `id_usuario` int(10) UNSIGNED NOT NULL,
-  `nome` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `email` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `usuario` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `senha` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `nivel` int(2) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Extraindo dados da tabela `usuarios`
---
-
-INSERT INTO `usuarios` (`id_usuario`, `nome`, `email`, `usuario`, `senha`, `nivel`) VALUES
-(1, 'Ana', 'paulappantoja@gmail.com', 'ana', '276b6c4692e78d4799c12ada515bc3e4', 1),
-(4, 'Luana', 'teste@teste.com', 'lua', 'f8dbbbdb3b80b4f170a8272978f579eb', 3),
-(6, 'Mari', 'mariana@gmail.com', 'mari', 'd40b913237b22c538b948e7e44aeb9cf', 2),
-(7, 'Edilberto', 'prof.edilberto.silva@gmail.com', 'edilberto', '827ccb0eea8a706c4c34a16891f84e7b', 1),
-(8, 'Fernanda', 'fernanda@teste.com', 'nanda', '859a37720c27b9f70e11b79bab9318fe', 3);
-
---
--- Índices para tabelas despejadas
---
-
---
--- Índices para tabela `aluno`
---
-ALTER TABLE `aluno`
-  ADD PRIMARY KEY (`id_aluno`),
-  ADD KEY `aluno_turma` (`turma_id_turma`),
-  ADD KEY `aluno_usuario` (`usuarios_id_usuario`);
-
---
--- Índices para tabela `arquivos`
---
-ALTER TABLE `arquivos`
-  ADD PRIMARY KEY (`id_arquivo`),
-  ADD KEY `arquivos_aluno` (`aluno_id_aluno`);
-
---
--- Índices para tabela `atividade`
---
-ALTER TABLE `atividade`
-  ADD PRIMARY KEY (`id_atividade`),
-  ADD KEY `atividade_disciplina` (`disciplina_id_disciplina`);
-
---
--- Índices para tabela `disciplina`
---
-ALTER TABLE `disciplina`
-  ADD PRIMARY KEY (`id_disciplina`);
-
---
--- Índices para tabela `niveis`
---
-ALTER TABLE `niveis`
-  ADD PRIMARY KEY (`id_nivel`);
-
---
--- Índices para tabela `turma`
---
-ALTER TABLE `turma`
-  ADD PRIMARY KEY (`id_turma`);
-
---
--- Índices para tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id_usuario`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `usuario_niveis` (`nivel`);
-
---
--- AUTO_INCREMENT de tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `aluno`
---
-ALTER TABLE `aluno`
-  MODIFY `id_aluno` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT de tabela `arquivos`
---
-ALTER TABLE `arquivos`
-  MODIFY `id_arquivo` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT de tabela `atividade`
---
-ALTER TABLE `atividade`
-  MODIFY `id_atividade` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
-
---
--- AUTO_INCREMENT de tabela `disciplina`
---
-ALTER TABLE `disciplina`
-  MODIFY `id_disciplina` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT de tabela `niveis`
---
-ALTER TABLE `niveis`
-  MODIFY `id_nivel` int(2) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de tabela `turma`
---
-ALTER TABLE `turma`
-  MODIFY `id_turma` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- Restrições para despejos de tabelas
---
-
---
--- Limitadores para a tabela `aluno`
---
-ALTER TABLE `aluno`
-  ADD CONSTRAINT `aluno_turma` FOREIGN KEY (`turma_id_turma`) REFERENCES `turma` (`id_turma`),
-  ADD CONSTRAINT `aluno_usuario` FOREIGN KEY (`usuarios_id_usuario`) REFERENCES `usuarios` (`id_usuario`);
-
---
--- Limitadores para a tabela `arquivos`
---
-ALTER TABLE `arquivos`
-  ADD CONSTRAINT `arquivos_aluno` FOREIGN KEY (`aluno_id_aluno`) REFERENCES `aluno` (`id_aluno`);
-
---
--- Limitadores para a tabela `atividade`
---
-ALTER TABLE `atividade`
-  ADD CONSTRAINT `atividade_disciplina` FOREIGN KEY (`disciplina_id_disciplina`) REFERENCES `disciplina` (`id_disciplina`);
-
---
--- Limitadores para a tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD CONSTRAINT `usuario_niveis` FOREIGN KEY (`nivel`) REFERENCES `niveis` (`id_nivel`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
